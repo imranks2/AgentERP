@@ -6,6 +6,7 @@ import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import TenantDashboard from './pages/TenantDashboard';
+import OrganisationPage from './pages/OrganisationPage';
 
 function ProtectedRoute({ children, requireAdmin = false }) {
   const { user, isAuthenticated, loading } = useAuth();
@@ -49,6 +50,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <TenantDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/organisation"
+        element={
+          <ProtectedRoute>
+            <TenantDashboard page="organisation" />
           </ProtectedRoute>
         }
       />

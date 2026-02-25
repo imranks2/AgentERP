@@ -49,12 +49,14 @@ def create_app(config_name=None):
     from app.routes.subscription import subscription_bp
     from app.routes.admin import admin_bp
     from app.routes.analytics import analytics_bp
+    from app.routes.organisation import org_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(tenant_bp, url_prefix='/api/tenants')
     app.register_blueprint(subscription_bp, url_prefix='/api/subscriptions')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
+    app.register_blueprint(org_bp, url_prefix='/api/organisation')
 
     # Register error handlers
     register_error_handlers(app)
@@ -62,7 +64,7 @@ def create_app(config_name=None):
     # Health check
     @app.route('/api/health')
     def health():
-        return {'status': 'healthy', 'version': '0.1.0', 'phase': 1}
+        return {'status': 'healthy', 'version': '0.2.0', 'phase': 2}
 
     return app
 

@@ -1,21 +1,31 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../services/AuthContext';
 import { tenantAPI, subscriptionAPI } from '../services/api';
 import analytics from '../services/analytics';
+import OrganisationPage from './OrganisationPage';
 import {
   Zap, LogOut, LayoutDashboard, Settings, CreditCard,
-  Building2, Users, Package, Calendar, Clock
+  Building2, Users, Package, Calendar, Clock, Network,
 } from 'lucide-react';
 import '../styles/dashboard.css';
 
-function TenantDashboard() {
+function TenantDashboard({ page }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [tenant, setTenant] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(page === 'organisation' ? 'organisation' : 'overview');
+
+  useEffect(() => {
+    // sync activeTab with page prop when route changes
+    if (page === 'organisation') setActiveTab('organisation');
+    else if (location.pathname === '/dashboard') {
+      if (activeTab === 'organisation') setActiveTab('overview');
+    }
+  }, [page, location.pathname]);
 
   useEffect(() => {
     analytics.pageView('tenant_dashboard');
@@ -74,21 +84,28 @@ function TenantDashboard() {
         <nav className="sidebar-nav">
           <button
             className={`sidebar-item ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
+            onClick={() => { setActiveTab('overview'); navigate('/dashboard'); }}
           >
             <LayoutDashboard size={18} />
             Dashboard
           </button>
           <button
+            className={`sidebar-item ${activeTab === 'organisation' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('organisation'); navigate('/organisation'); }}
+          >
+            <Network size={18} />
+            Organisation
+          </button>
+          <button
             className={`sidebar-item ${activeTab === 'subscription' ? 'active' : ''}`}
-            onClick={() => setActiveTab('subscription')}
+            onClick={() => { setActiveTab('subscription'); navigate('/dashboard'); }}
           >
             <CreditCard size={18} />
             Subscription
           </button>
           <button
             className={`sidebar-item ${activeTab === 'settings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('settings')}
+            onClick={() => { setActiveTab('settings'); navigate('/dashboard'); }}
           >
             <Settings size={18} />
             Settings
@@ -111,6 +128,10 @@ function TenantDashboard() {
 
       {/* Main Content */}
       <main className="dashboard-main">
+        {activeTab === 'organisation' ? (
+          <OrganisationPage />
+        ) : (
+        <>
         <header className="dashboard-header">
           <div>
             <h1>Welcome, {user?.first_name}!</h1>
@@ -192,8 +213,13 @@ function TenantDashboard() {
                     <div className="checklist-item">
                       <div className="checklist-check">2</div>
                       <div>
-                        <div className="checklist-title">Configure your organisation</div>
-                        <div className="checklist-desc">Set your timezone, currency, and preferences</div>
+                        <div className="checklist-title">
+                          <span style={{ cursor: 'pointer', color: 'var(--primary)' }}
+                            onClick={() => { setActiveTab('organisation'); navigate('/organisation'); }}>
+                            Set up your organisation structure
+                          </span>
+                        </div>
+                        <div className="checklist-desc">Create departments, branches, and teams</div>
                       </div>
                     </div>
                     <div className="checklist-item">
@@ -311,6 +337,8 @@ function TenantDashboard() {
             </div>
           )}
         </div>
+        </>
+        )}
       </main>
     </div>
   );

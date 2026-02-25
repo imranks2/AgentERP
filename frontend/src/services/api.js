@@ -96,4 +96,20 @@ export const analyticsAPI = {
   dashboard: (days) => api.get('/analytics/dashboard', { params: { days } }),
 };
 
+// Organisation API
+export const organisationAPI = {
+  tree: () => api.get('/organisation/tree'),
+  list: (params) => api.get('/organisation/', { params }),
+  stats: () => api.get('/organisation/stats'),
+  get: (id) => api.get(`/organisation/${id}`),
+  create: (data) => api.post('/organisation/', data),
+  update: (id, data) => api.put(`/organisation/${id}`, data),
+  delete: (id, reassignTo) =>
+    api.delete(`/organisation/${id}`, { params: reassignTo ? { reassign_to: reassignTo } : {} }),
+  move: (id, newParentId) =>
+    api.put(`/organisation/${id}/move`, { new_parent_id: newParentId }),
+  subtree: (id) => api.get(`/organisation/${id}/subtree`),
+  ancestors: (id) => api.get(`/organisation/${id}/ancestors`),
+};
+
 export default api;
