@@ -4,9 +4,14 @@ import { useAuth } from '../services/AuthContext';
 import { tenantAPI, subscriptionAPI } from '../services/api';
 import analytics from '../services/analytics';
 import OrganisationPage from './OrganisationPage';
+import ModuleMarketplace from './ModuleMarketplace';
+import InventoryPage from './InventoryPage';
+import SalesPage from './SalesPage';
+import PurchasingPage from './PurchasingPage';
 import {
   Zap, LogOut, LayoutDashboard, Settings, CreditCard,
   Building2, Users, Package, Calendar, Clock, Network,
+  Box, ShoppingCart, Truck, Puzzle,
 } from 'lucide-react';
 import '../styles/dashboard.css';
 
@@ -17,13 +22,24 @@ function TenantDashboard({ page }) {
   const [tenant, setTenant] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(page === 'organisation' ? 'organisation' : 'overview');
+  const [activeTab, setActiveTab] = useState(
+    page === 'organisation' ? 'organisation'
+    : page === 'modules' ? 'modules'
+    : page === 'inventory' ? 'inventory'
+    : page === 'sales' ? 'sales'
+    : page === 'purchasing' ? 'purchasing'
+    : 'overview'
+  );
 
   useEffect(() => {
     // sync activeTab with page prop when route changes
     if (page === 'organisation') setActiveTab('organisation');
+    else if (page === 'modules') setActiveTab('modules');
+    else if (page === 'inventory') setActiveTab('inventory');
+    else if (page === 'sales') setActiveTab('sales');
+    else if (page === 'purchasing') setActiveTab('purchasing');
     else if (location.pathname === '/dashboard') {
-      if (activeTab === 'organisation') setActiveTab('overview');
+      if (['organisation','modules','inventory','sales','purchasing'].includes(activeTab)) setActiveTab('overview');
     }
   }, [page, location.pathname]);
 
@@ -97,6 +113,41 @@ function TenantDashboard({ page }) {
             Organisation
           </button>
           <button
+            className={`sidebar-item ${activeTab === 'modules' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('modules'); navigate('/modules'); }}
+          >
+            <Puzzle size={18} />
+            Modules
+          </button>
+
+          <div className="sidebar-divider" />
+          <div className="sidebar-section-label">ERP Modules</div>
+
+          <button
+            className={`sidebar-item ${activeTab === 'inventory' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('inventory'); navigate('/inventory'); }}
+          >
+            <Box size={18} />
+            Inventory
+          </button>
+          <button
+            className={`sidebar-item ${activeTab === 'sales' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('sales'); navigate('/sales'); }}
+          >
+            <ShoppingCart size={18} />
+            Sales
+          </button>
+          <button
+            className={`sidebar-item ${activeTab === 'purchasing' ? 'active' : ''}`}
+            onClick={() => { setActiveTab('purchasing'); navigate('/purchasing'); }}
+          >
+            <Truck size={18} />
+            Purchasing
+          </button>
+
+          <div className="sidebar-divider" />
+
+          <button
             className={`sidebar-item ${activeTab === 'subscription' ? 'active' : ''}`}
             onClick={() => { setActiveTab('subscription'); navigate('/dashboard'); }}
           >
@@ -130,6 +181,14 @@ function TenantDashboard({ page }) {
       <main className="dashboard-main">
         {activeTab === 'organisation' ? (
           <OrganisationPage />
+        ) : activeTab === 'modules' ? (
+          <ModuleMarketplace />
+        ) : activeTab === 'inventory' ? (
+          <InventoryPage />
+        ) : activeTab === 'sales' ? (
+          <SalesPage />
+        ) : activeTab === 'purchasing' ? (
+          <PurchasingPage />
         ) : (
         <>
         <header className="dashboard-header">
@@ -146,7 +205,7 @@ function TenantDashboard({ page }) {
 
         <div className="dashboard-content">
           {activeTab === 'overview' && (
-            <>
+            <div className="overview-content">
               <div className="stat-grid">
                 <div className="stat-card stat-blue">
                   <div className="stat-card-header">
@@ -225,8 +284,13 @@ function TenantDashboard({ page }) {
                     <div className="checklist-item">
                       <div className="checklist-check">3</div>
                       <div>
-                        <div className="checklist-title">Install modules</div>
-                        <div className="checklist-desc">Activate Inventory, Sales, Purchasing, and more (coming in Phase 3)</div>
+                        <div className="checklist-title">
+                          <span style={{ cursor: 'pointer', color: 'var(--primary)' }}
+                            onClick={() => { setActiveTab('modules'); navigate('/modules'); }}>
+                            Install modules
+                          </span>
+                        </div>
+                          <div className="checklist-desc">Activate Inventory, Sales, and Purchasing modules</div>
                       </div>
                     </div>
                     <div className="checklist-item">
@@ -239,7 +303,7 @@ function TenantDashboard({ page }) {
                   </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {activeTab === 'subscription' && (

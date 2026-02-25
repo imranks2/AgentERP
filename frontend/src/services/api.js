@@ -112,4 +112,77 @@ export const organisationAPI = {
   ancestors: (id) => api.get(`/organisation/${id}/ancestors`),
 };
 
+// Modules API
+export const modulesAPI = {
+  available: () => api.get('/modules/available'),
+  installed: () => api.get('/modules/installed'),
+  install: (slug) => api.post(`/modules/${slug}/install`),
+  uninstall: (slug) => api.post(`/modules/${slug}/uninstall`),
+  seed: () => api.post('/modules/seed'),
+};
+
+// Inventory API
+export const inventoryAPI = {
+  // Categories
+  listCategories: () => api.get('/inventory/categories'),
+  createCategory: (data) => api.post('/inventory/categories', data),
+  updateCategory: (id, data) => api.put(`/inventory/categories/${id}`, data),
+  deleteCategory: (id) => api.delete(`/inventory/categories/${id}`),
+  // Products
+  listProducts: (params) => api.get('/inventory/products', { params }),
+  getProduct: (id) => api.get(`/inventory/products/${id}`),
+  createProduct: (data) => api.post('/inventory/products', data),
+  updateProduct: (id, data) => api.put(`/inventory/products/${id}`, data),
+  deleteProduct: (id) => api.delete(`/inventory/products/${id}`),
+  // Warehouses
+  listWarehouses: () => api.get('/inventory/warehouses'),
+  createWarehouse: (data) => api.post('/inventory/warehouses', data),
+  updateWarehouse: (id, data) => api.put(`/inventory/warehouses/${id}`, data),
+  // Stock
+  getStock: (params) => api.get('/inventory/stock', { params }),
+  adjustStock: (data) => api.post('/inventory/stock/adjust', data),
+  getMovements: (params) => api.get('/inventory/stock/movements', { params }),
+  stats: () => api.get('/inventory/stats'),
+};
+
+// Sales API
+export const salesAPI = {
+  // Customers
+  listCustomers: (params) => api.get('/sales/customers', { params }),
+  getCustomer: (id) => api.get(`/sales/customers/${id}`),
+  createCustomer: (data) => api.post('/sales/customers', data),
+  updateCustomer: (id, data) => api.put(`/sales/customers/${id}`, data),
+  // Quotations
+  listQuotations: (params) => api.get('/sales/quotations', { params }),
+  getQuotation: (id) => api.get(`/sales/quotations/${id}`),
+  createQuotation: (data) => api.post('/sales/quotations', data),
+  updateQuotation: (id, data) => api.put(`/sales/quotations/${id}`, data),
+  convertQuotation: (id, data) => api.post(`/sales/quotations/${id}/convert`, data),
+  // Invoices
+  listInvoices: (params) => api.get('/sales/invoices', { params }),
+  getInvoice: (id) => api.get(`/sales/invoices/${id}`),
+  createInvoice: (data) => api.post('/sales/invoices', data),
+  updateInvoiceStatus: (id, status) => api.put(`/sales/invoices/${id}/status`, { status }),
+  // Payments
+  listPayments: (invId) => api.get(`/sales/invoices/${invId}/payments`),
+  recordPayment: (invId, data) => api.post(`/sales/invoices/${invId}/payments`, data),
+  stats: () => api.get('/sales/stats'),
+};
+
+// Purchasing API
+export const purchasingAPI = {
+  // Suppliers
+  listSuppliers: (params) => api.get('/purchasing/suppliers', { params }),
+  getSupplier: (id) => api.get(`/purchasing/suppliers/${id}`),
+  createSupplier: (data) => api.post('/purchasing/suppliers', data),
+  updateSupplier: (id, data) => api.put(`/purchasing/suppliers/${id}`, data),
+  // Purchase Orders
+  listOrders: (params) => api.get('/purchasing/orders', { params }),
+  getOrder: (id) => api.get(`/purchasing/orders/${id}`),
+  createOrder: (data) => api.post('/purchasing/orders', data),
+  updateOrder: (id, data) => api.put(`/purchasing/orders/${id}`, data),
+  receiveGoods: (id, data) => api.post(`/purchasing/orders/${id}/receive`, data),
+  stats: () => api.get('/purchasing/stats'),
+};
+
 export default api;

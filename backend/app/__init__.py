@@ -50,6 +50,10 @@ def create_app(config_name=None):
     from app.routes.admin import admin_bp
     from app.routes.analytics import analytics_bp
     from app.routes.organisation import org_bp
+    from app.routes.modules import modules_bp
+    from app.routes.inventory import inventory_bp
+    from app.routes.sales import sales_bp
+    from app.routes.purchasing import purchasing_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(tenant_bp, url_prefix='/api/tenants')
@@ -57,6 +61,10 @@ def create_app(config_name=None):
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
     app.register_blueprint(org_bp, url_prefix='/api/organisation')
+    app.register_blueprint(modules_bp, url_prefix='/api/modules')
+    app.register_blueprint(inventory_bp, url_prefix='/api/inventory')
+    app.register_blueprint(sales_bp, url_prefix='/api/sales')
+    app.register_blueprint(purchasing_bp, url_prefix='/api/purchasing')
 
     # Register error handlers
     register_error_handlers(app)
@@ -64,7 +72,7 @@ def create_app(config_name=None):
     # Health check
     @app.route('/api/health')
     def health():
-        return {'status': 'healthy', 'version': '0.2.0', 'phase': 2}
+        return {'status': 'healthy', 'version': '0.3.0', 'phase': 3}
 
     return app
 
