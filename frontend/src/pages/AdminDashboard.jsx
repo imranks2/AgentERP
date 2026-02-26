@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/AuthContext';
 import { adminAPI, tenantAPI } from '../services/api';
 import analytics from '../services/analytics';
+import DataTable from '../components/DataTable';
 import {
   Zap, LogOut, LayoutDashboard, Users, Building2,
   TrendingUp, Search, ChevronDown, MoreHorizontal,
@@ -309,81 +310,39 @@ function AdminDashboard() {
               </div>
 
               <div className="card">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Organisation</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Plan</th>
-                      <th>Users</th>
-                      <th>Created</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tenants?.items?.map((tenant) => (
-                      <tr key={tenant.id}>
-                        <td>
-                          <div className="cell-primary">{tenant.name}</div>
-                          <div className="cell-secondary">{tenant.slug}</div>
-                        </td>
-                        <td>{tenant.email}</td>
-                        <td>{getStatusBadge(tenant.status)}</td>
-                        <td>{tenant.subscription?.plan?.name || 'None'}</td>
-                        <td>{tenant.user_count || 0}</td>
-                        <td>{new Date(tenant.created_at).toLocaleDateString()}</td>
-                        <td>
-                          <div className="action-group">
-                            {tenant.status === 'trial' && (
-                              <button
-                                className="btn-sm btn-success"
-                                onClick={() => handleStatusChange(tenant.id, 'active')}
-                                title="Activate"
-                              >
-                                <UserCheck size={14} />
-                              </button>
-                            )}
-                            {tenant.status === 'active' && (
-                              <button
-                                className="btn-sm btn-warning"
-                                onClick={() => handleStatusChange(tenant.id, 'suspended')}
-                                title="Suspend"
-                              >
-                                <UserX size={14} />
-                              </button>
-                            )}
-                            {tenant.status === 'suspended' && (
-                              <button
-                                className="btn-sm btn-success"
-                                onClick={() => handleStatusChange(tenant.id, 'active')}
-                                title="Reactivate"
-                              >
-                                <UserCheck size={14} />
-                              </button>
-                            )}
-                            {tenant.status !== 'churned' && (
-                              <button
-                                className="btn-sm btn-danger"
-                                onClick={() => handleStatusChange(tenant.id, 'churned')}
-                                title="Churn"
-                              >
-                                <XCircle size={14} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {(!tenants?.items || tenants.items.length === 0) && (
-                      <tr>
-                        <td colSpan="7" className="empty-state">
-                          No tenants found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                <DataTable
+                  columns={[
+                    { key: 'name', label: 'Organisation', sortable: true, primary: true, render: (_, t) => (
+                      <><div className="cell-primary">{t.name}</div><div className="cell-secondary">{t.slug}</div></>
+                    )},
+                    { key: 'email', label: 'Email', sortable: true },
+                    { key: 'status', label: 'Status', render: (v) => getStatusBadge(v) },
+                    { key: '_plan', label: 'Plan', render: (_, t) => t.subscription?.plan?.name || 'None' },
+                    { key: 'user_count', label: 'Users', render: (v) => v || 0 },
+                    { key: 'created_at', label: 'Created', sortable: true, render: (v) => new Date(v).toLocaleDateString() },
+                    { key: '_actions', label: 'Actions', render: (_, tenant) => (
+                      <div className="action-group">
+                        {tenant.status === 'trial' && (
+                          <button className="btn-sm btn-success" onClick={(e) => { e.stopPropagation(); handleStatusChange(tenant.id, 'active'); }} title="Activate"><UserCheck size={14} /></button>
+                        )}
+                        {tenant.status === 'active' && (
+                          <button className="btn-sm btn-warning" onClick={(e) => { e.stopPropagation(); handleStatusChange(tenant.id, 'suspended'); }} title="Suspend"><UserX size={14} /></button>
+                        )}
+                        {tenant.status === 'suspended' && (
+                          <button className="btn-sm btn-success" onClick={(e) => { e.stopPropagation(); handleStatusChange(tenant.id, 'active'); }} title="Reactivate"><UserCheck size={14} /></button>
+                        )}
+                        {tenant.status !== 'churned' && (
+                          <button className="btn-sm btn-danger" onClick={(e) => { e.stopPropagation(); handleStatusChange(tenant.id, 'churned'); }} title="Churn"><XCircle size={14} /></button>
+                        )}
+                      </div>
+                    )},
+                  ]}
+                  data={tenants?.items || []}
+                  searchable={false}
+                  paginate={false}
+                  emptyTitle="No tenants found"
+                  emptyDesc="No tenants match your current filters"
+                />
 
                 {tenants?.pages > 1 && (
                   <div className="pagination">

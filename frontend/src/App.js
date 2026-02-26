@@ -1,16 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './services/AuthContext';
+import { ToastProvider } from './components/Toast';
 import LandingPage from './pages/LandingPage';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import TenantDashboard from './pages/TenantDashboard';
-import OrganisationPage from './pages/OrganisationPage';
-import ModuleMarketplace from './pages/ModuleMarketplace';
-import InventoryPage from './pages/InventoryPage';
-import SalesPage from './pages/SalesPage';
-import PurchasingPage from './pages/PurchasingPage';
 
 function ProtectedRoute({ children, requireAdmin = false }) {
   const { user, isAuthenticated, loading } = useAuth();
@@ -97,6 +93,62 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/accounting"
+        element={
+          <ProtectedRoute>
+            <TenantDashboard page="accounting" />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/crm"
+        element={
+          <ProtectedRoute>
+            <TenantDashboard page="crm" />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/hr"
+        element={
+          <ProtectedRoute>
+            <TenantDashboard page="hr" />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ai-insights"
+        element={
+          <ProtectedRoute>
+            <TenantDashboard page="ai-insights" />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute>
+            <TenantDashboard page="users" />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <TenantDashboard page="profile" />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/activity"
+        element={
+          <ProtectedRoute>
+            <TenantDashboard page="activity" />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -106,7 +158,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppRoutes />
+        <ToastProvider>
+          <AppRoutes />
+        </ToastProvider>
       </AuthProvider>
     </Router>
   );

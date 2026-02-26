@@ -34,6 +34,13 @@ class Config:
     # CORS
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*')
 
+    # AI / LLM
+    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+    OPENAI_MODEL = os.environ.get('OPENAI_MODEL', 'gpt-4o')
+    AI_MOCK_MODE = os.environ.get('AI_MOCK_MODE', 'auto')  # auto | always | never
+    AI_MAX_TOKENS = int(os.environ.get('AI_MAX_TOKENS', '4096'))
+    AI_TEMPERATURE = float(os.environ.get('AI_TEMPERATURE', '0.2'))
+
 
 class DevelopmentConfig(Config):
     """Development configuration."""
