@@ -8,6 +8,8 @@ from flask_jwt_extended import (
 from app import db
 from app.models.user import User
 from app.services.analytics_service import AnalyticsService
+from app.services.user_service import UserService
+from app.events import event_bus
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -44,6 +46,7 @@ def login():
         'email': user.email,
         'role': user.role,
         'is_platform_admin': user.is_platform_admin,
+        'permissions': user.permissions,
     }
     access_token = create_access_token(identity=user.id, additional_claims=claims)
     refresh_token = create_refresh_token(identity=user.id, additional_claims=claims)
@@ -56,6 +59,8 @@ def login():
         user_id=user.id,
         source='api',
     )
+    event_bus.emit('auth.login', tenant_id=user.tenant_id, user_id=user.id,
+                   data={'email': user.email})
 
     return jsonify({
         'access_token': access_token,
@@ -67,14 +72,15 @@ def login():
 @auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
-    """Refresh access token."""
     user_id = get_jwt_identity()
+    user = User.query.get(user_id)
     claims = get_jwt()
     additional_claims = {
         'tenant_id': claims.get('tenant_id'),
         'email': claims.get('email'),
         'role': claims.get('role'),
         'is_platform_admin': claims.get('is_platform_admin'),
+        'permissions': user.permissions if user else claims.get('permissions', []),
     }
     access_token = create_access_token(identity=user_id, additional_claims=additional_claims)
     return jsonify({'access_token': access_token})
@@ -116,12 +122,16 @@ def register_tenant():
             address=data.get('address'),
         )
 
+        # Seed default roles & permissions for the new tenant
+        UserService.seed_roles(tenant.id)
+
         # Auto-login after registration
         claims = {
             'tenant_id': tenant.id,
             'email': admin_user.email,
             'role': admin_user.role,
             'is_platform_admin': False,
+            'permissions': admin_user.permissions,
         }
         access_token = create_access_token(identity=admin_user.id, additional_claims=claims)
         refresh_token = create_refresh_token(identity=admin_user.id, additional_claims=claims)
@@ -134,6 +144,8 @@ def register_tenant():
             user_id=admin_user.id,
             source='api',
         )
+        event_bus.emit('auth.register', tenant_id=tenant.id, user_id=admin_user.id,
+                       data={'email': admin_user.email})
 
         return jsonify({
             'message': 'Registration successful',

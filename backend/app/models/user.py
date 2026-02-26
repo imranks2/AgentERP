@@ -20,11 +20,21 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
-    role = db.Column(db.String(50), nullable=False, default='user')
+    role = db.Column(db.String(50), nullable=False, default='user')  # Legacy string role
+    role_id = db.Column(
+        db.String(36),
+        db.ForeignKey('roles.id', ondelete='SET NULL'),
+        nullable=True,
+        index=True,
+    )
     is_platform_admin = db.Column(db.Boolean, default=False, nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     last_login_at = db.Column(db.DateTime(timezone=True), nullable=True)
     avatar_url = db.Column(db.String(500), nullable=True)
+    invited_by = db.Column(db.String(36), nullable=True)
+    invite_accepted_at = db.Column(db.DateTime(timezone=True), nullable=True)
+
+    role_obj = db.relationship('Role', backref='users', lazy='joined')
 
     created_at = db.Column(
         db.DateTime(timezone=True),
@@ -54,6 +64,25 @@ class User(db.Model):
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
 
+    def has_permission(self, perm_slug):
+        """Check if user has a specific permission via their role."""
+        if self.is_platform_admin:
+            return True
+        if self.role_obj:
+            return self.role_obj.has_permission(perm_slug)
+        # Fallback: owner/admin string roles get all perms
+        return self.role in ('owner', 'admin')
+
+    @property
+    def permissions(self):
+        """Return list of permission slugs for this user."""
+        if self.is_platform_admin or self.role in ('owner', 'admin'):
+            from app.models.role import Permission
+            return [p.slug for p in Permission.query.all()]
+        if self.role_obj:
+            return [p.slug for p in self.role_obj.permissions]
+        return []
+
     def to_dict(self, include_sensitive=False):
         """Serialize user to dictionary."""
         data = {
@@ -64,9 +93,12 @@ class User(db.Model):
             'last_name': self.last_name,
             'full_name': self.full_name,
             'role': self.role,
+            'role_id': self.role_id,
+            'role_name': self.role_obj.name if self.role_obj else self.role.title(),
             'is_platform_admin': self.is_platform_admin,
             'is_active': self.is_active,
             'avatar_url': self.avatar_url,
+            'permissions': self.permissions,
             'last_login_at': self.last_login_at.isoformat() if self.last_login_at else None,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),

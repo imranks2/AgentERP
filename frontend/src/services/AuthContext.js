@@ -54,6 +54,19 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const hasPermission = (perm) => {
+    if (!user) return false;
+    if (user.is_platform_admin) return true;
+    if (['owner', 'admin'].includes(user.role)) return true;
+    return user.permissions?.includes(perm) ?? false;
+  };
+
+  const hasRole = (...roles) => {
+    if (!user) return false;
+    if (user.is_platform_admin) return true;
+    return roles.includes(user.role);
+  };
+
   const value = {
     user,
     loading,
@@ -62,6 +75,8 @@ export function AuthProvider({ children }) {
     register,
     logout,
     loadUser,
+    hasPermission,
+    hasRole,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

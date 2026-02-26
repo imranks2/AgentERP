@@ -53,6 +53,8 @@ class Tenant(db.Model):
                             cascade='all, delete-orphan')
     subscription = db.relationship('Subscription', backref='tenant', uselist=False,
                                    cascade='all, delete-orphan')
+    organisation_units = db.relationship('OrganisationUnit', backref='tenant',
+                                         lazy='dynamic', cascade='all, delete-orphan')
 
     VALID_STATUSES = ['trial', 'active', 'suspended', 'churned']
     VALID_TRANSITIONS = {
