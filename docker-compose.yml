@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-agenterp}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agenterp_secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-agenterp}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -40,12 +40,12 @@ services:
       - FLASK_APP=${FLASK_APP:-app}
       - FLASK_ENV=${FLASK_ENV:-development}
       - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
-      - DATABASE_URL=${DATABASE_URL:-postgresql://agenterp:agenterp_secret@db:5432/agenterp}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://agenterp:PASSWORD@db:5432/agenterp}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:-jwt-dev-secret}
       - JWT_ACCESS_TOKEN_EXPIRES=${JWT_ACCESS_TOKEN_EXPIRES:-3600}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@agenterp.com}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-PASSWORD}
     volumes:
       - ./backend:/app
     ports:
